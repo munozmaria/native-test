@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { ActivityIndicator } from "react-native-paper";
 
-export default function DetailsScreen({ route, setFavorites }) {
+export default function DetailsScreen({ route, setFavorites, navigation }) {
   //console.log(route);
   const { i } = route.params;
 
@@ -31,6 +31,7 @@ export default function DetailsScreen({ route, setFavorites }) {
         await AsyncStorage.setItem("Favorites", JSON.stringify(favoritesArray));
         //console.log(favoritesArray);
         setFavorites(favoritesArray);
+        navigation.navigate("Favorites");
       } else {
         console.log("This cocktail is already in the list.");
       }
