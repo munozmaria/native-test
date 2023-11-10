@@ -74,7 +74,7 @@ export default function App() {
               <Stack.Screen favorites={favorites} name="Favorites">
                 {(props) => (
                   <FavoritesScreen
-                    name="favorites"
+                    name="Favorites"
                     favorites={favorites}
                     setFavorites={setFavorites}
                     {...props}
