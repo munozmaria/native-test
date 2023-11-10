@@ -11,7 +11,7 @@ import {
   Image,
 } from "react-native";
 
-export default function HomeScreen({ navigation }) {
+export default function ListScreen({ navigation }) {
   const { data, loading } = useFetch("filter.php?c=Ordinary_Drink");
 
   return loading === true ? (
@@ -25,6 +25,7 @@ export default function HomeScreen({ navigation }) {
           renderItem={({ item }) => {
             return (
               <TouchableOpacity
+                style={styles.cardContainer}
                 onPress={() => {
                   navigation.navigate("Details", { i: item.idDrink });
                 }}>
@@ -47,16 +48,27 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginTop: 20,
-    alignItems: "center",
     paddingHorizontal: 5,
+  },
+  cardContainer: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    margin: 10,
+    padding: 15,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
   },
   imageBackground: {
     height: 250,
-    objectFit: "cover",
+    resizeMode: "cover",
     borderRadius: 10,
   },
   title: {
     marginVertical: 20,
     fontWeight: "bold",
+    color: "#C892C9"
   },
 });

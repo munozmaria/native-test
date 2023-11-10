@@ -6,17 +6,22 @@ const Tab = createMaterialBottomTabNavigator();
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { AntDesign } from "@expo/vector-icons";
 
-import HomeScreen from "./screens/HomeScreen";
+import ListScreen from "./screens/ListScreen";
 import DetailsScreen from "./screens/DetailsScreen";
 import ArrowIcon from "./components/ArrowIcon";
 import FavoritesScreen from "./screens/FavoritesScreen";
+import {useState } from "react";
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+  const [favorites, setFavorites] = useState([]);
+
+  //console.log(JSON.stringify(favorites, null, 2));
+
   return (
     <NavigationContainer>
-      <Tab.Navigator>
+      <Tab.Navigator initialRouteName="List">
         <Tab.Screen
           name="Home"
           options={{
@@ -33,8 +38,8 @@ export default function App() {
                 headerTitleStyle: { color: "white", fontWeight: "bold" },
               }}>
               <Stack.Screen
-                name="Home"
-                component={HomeScreen}
+                name="List"
+                component={ListScreen}
                 options={{
                   title: "Cocktails List",
                 }}
@@ -44,42 +49,41 @@ export default function App() {
                 options={{
                   headerLeft: () => <ArrowIcon />,
                 }}>
-                {(props) => <DetailsScreen {...props} />}
+                {(props) => (
+                  <DetailsScreen setFavorites={setFavorites} {...props} />
+                )}
               </Stack.Screen>
             </Stack.Navigator>
           )}
         </Tab.Screen>
         <Tab.Screen
-          name="Favorites"
-          component={FavoritesScreen}
+          name="Saved"
           options={{
             tabBarIcon: () => (
               <AntDesign name="heart" color="#790e7c" size={22} />
             ),
-          }}></Tab.Screen>
+          }}>
+          {() => (
+            <Stack.Navigator
+              screenOptions={{
+                headerStyle: {
+                  backgroundColor: "#C892C9",
+                },
+                headerTitleStyle: { color: "white", fontWeight: "bold" },
+              }}>
+              <Stack.Screen favorites={favorites} name="Favorites">
+                {(props) => (
+                  <FavoritesScreen
+                    favorites={favorites}
+                    setFavorites={setFavorites}
+                    {...props}
+                  />
+                )}
+              </Stack.Screen>
+            </Stack.Navigator>
+          )}
+        </Tab.Screen>
       </Tab.Navigator>
-      {/* <Stack.Navigator
-        screenOptions={{
-          headerStyle: {
-            backgroundColor: "#C892C9",
-          },
-          headerTitleStyle: { color: "white", fontWeight: "bold" },
-        }}>
-        <Stack.Screen
-          name="Home"
-          component={HomeScreen}
-          options={{
-            title: "Fruits Api",
-          }}
-        />
-        <Stack.Screen
-          name="Details"
-          component={DetailsScreen}
-          options={{
-            headerLeft: () => <ArrowIcon />,
-          }}
-        />
-      </Stack.Navigator> */}
     </NavigationContainer>
   );
 }

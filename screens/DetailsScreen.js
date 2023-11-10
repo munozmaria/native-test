@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import useFetch from "../hooks/useFetch";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { AntDesign } from "@expo/vector-icons";
 import {
   FlatList,
   StyleSheet,
@@ -10,11 +12,38 @@ import {
 } from "react-native";
 import { ActivityIndicator } from "react-native-paper";
 
-export default function DetailsScreen({ route }) {
-  console.log(route);
+export default function DetailsScreen({
+  route,
+  setFavorites,
+  refresh,
+  setRefresh,
+}) {
+  //console.log(route);
   const { i } = route.params;
 
   const { data, loading } = useFetch(`lookup.php?i=${i}`);
+
+  const addToFavorites = async (item) => {
+    try {
+      const favoritesString = await AsyncStorage.getItem("Favorites");
+      let favoritesArray = JSON.parse(favoritesString || "[]");
+
+      const isItemInFavorites = favoritesArray.find(
+        (favorite) => favorite.idDrink === item.idDrink
+      );
+      if (!isItemInFavorites) {
+        favoritesArray.push(item);
+        await AsyncStorage.setItem("Favorites", JSON.stringify(favoritesArray));
+        //console.log(favoritesArray);
+        setFavorites(favoritesArray);
+        setRefresh(refresh + 1);
+      } else {
+        console.log("This cocktail is already in the list.");
+      }
+    } catch (error) {
+      console.log("Error adding to favorites: ", error);
+    }
+  };
 
   return loading === true ? (
     <ActivityIndicator />
@@ -25,11 +54,13 @@ export default function DetailsScreen({ route }) {
         keyExtractor={(item) => String(item.idDrink)}
         renderItem={({ item }) => {
           return (
-            <TouchableOpacity>
-              <Image
-                style={styles.imageBackground}
-                source={{ uri: item.strDrinkThumb }}
-              />
+            <View style={styles.cardContainer}>
+              <View style={styles.container}>
+                <Image
+                  style={styles.imageBackground}
+                  source={{ uri: item.strDrinkThumb }}
+                />
+              </View>
               <Text numberOfLines={1} style={styles.title}>
                 {item.strDrink}
               </Text>
@@ -51,7 +82,13 @@ export default function DetailsScreen({ route }) {
                 <Text>{item.strIngredient4}</Text>
                 <Text>{item.strIngredient5}</Text>
               </View>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.favorites}
+                onPress={() => addToFavorites(item)}>
+                <Text style={styles.flexTitle}>Add to your favorites</Text>
+                <AntDesign name="heart" size={24} color="red" />
+              </TouchableOpacity>
+            </View>
           );
         }}></FlatList>
     </View>
@@ -64,10 +101,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 10,
   },
+  cardContainer: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    margin: 10,
+    padding: 15,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+  },
   imageBackground: {
-    width: 250,
-    height: 250,
-    objectFit: "cover",
+    width: 150,
+    height: 150,
+    resizeMode: "cover",
     borderRadius: 10,
   },
   title: {
@@ -79,6 +127,15 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   flexTitle: {
+    fontWeight: "bold",
+  },
+  favorites: {
+    flexDirection: "row",
+    marginTop: 10,
+    padding: 20,
+    justifyContent: "center",
+    gap: 5,
+    alignItems: "center",
     fontWeight: "bold",
   },
 });
